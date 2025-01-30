@@ -36,6 +36,7 @@ class NewsApi {
 }
 
 
-const newsApi = new NewsApi('https://nomoreparties.co/news');
 
+//const newsApi = new NewsApi('https://newsapi.org');
+const newsApi = new NewsApi('https://nomoreparties.co/news');
 export default newsApi;

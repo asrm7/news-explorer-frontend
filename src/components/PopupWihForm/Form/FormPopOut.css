@@ -26,8 +26,9 @@
   color: #FF0000;
   margin-top: 30px;
   display: flex;
-    justify-content: center;  /* Centraliza horizontalmente */
-    align-items: center; 
+  justify-content: center;  /* Centraliza horizontalmente */
+  align-items: center; 
+  visibility: hidden;
 }
 .form__button{
   background-color: #2F71E5;

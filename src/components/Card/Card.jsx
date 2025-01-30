@@ -7,7 +7,7 @@ const Card = (props) => {
   const userToken = localStorage.getItem("jwt");
 
   const mainApi = new MainBackend({
-    baseUrl: "https://www.news-explorer.tk.students.nomoreparties.site",
+    baseUrl: 'http://localhost:3000',
     headers: {
       Authorization: `Bearer ${userToken}`,
       "content-type": "application/json",

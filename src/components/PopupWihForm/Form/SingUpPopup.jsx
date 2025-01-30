@@ -3,59 +3,98 @@ import PopoutWithForm from './PopUpWithForm';
 import FormInput from './FormInput';
 
 function SignUpPopup(props) {
-  const [isEmailValid, setIsEmailValid] = useState(true);
-  const [email, setEmail] = useState('');
-  const [isUserValid, setIsUserValid] = useState(true);
-  const [user, setUser] = useState('');
-  const [isPasswordValid, setIsPasswordValid] = useState(true);
-  const [password, setPassword] = useState('');
+  const [formState, setFormState] = useState({
+    email: '',
+    isEmailValid: false,
+    password: '',
+    isPasswordValid: false,
+    user: '',
+    isUserValid: false,
+  });
 
-  const [formValid, setFormValid] = useState(true);
+  const [formValid, setFormValid] = useState(false);
+  const [touched, setTouched] = useState({ email: false, password: false, user: false });
 
   const validateEmail = (email) => {
     const validation = /\S+@\S+\.\S+/;
     return validation.test(email);
   };
 
-  const allValid = (e) => {
-    setFormValid(e.target.closest('form').checkValidity());
+  const validateForm = (updatedState) => {
+    return (
+      updatedState.isEmailValid &&
+      updatedState.isPasswordValid &&
+      updatedState.isUserValid
+    );
   };
 
-  const handleEmailChange = (e) => {
-    setEmail(e.target.value);
-    setIsEmailValid(validateEmail(email));
-    allValid(e);
+  const handleInputChange = (field, value) => {
+    const updatedState = {
+      ...formState,
+      [field]: value,
+      isEmailValid: field === 'email' ? validateEmail(value) : formState.isEmailValid,
+      isPasswordValid: field === 'password' ? value.length > 5 : formState.isPasswordValid,
+      isUserValid: field === 'user' ? value.trim().length > 0 : formState.isUserValid,
+    };
+    setFormState(updatedState);
+
+    const updatedTouched = { ...touched, [field]: true };
+    setTouched(updatedTouched);
+
+    setFormValid(validateForm(updatedState));
   };
-  const handlePasswordChange = (e) => {
-    setPassword(e.target.value);
-    if (password.length > 6) {
-      setIsPasswordValid(true);
-    } else {
-      setIsPasswordValid(false);
-    }
-    allValid(e);
-  };
-  const handleUserChange = (e) => {
-    setUser(e.target.value);
-    setIsUserValid(true);
-    allValid(e);
-  };
+
   const signUpSubmit = (e) => {
     e.preventDefault();
-    props.handleSubmit({ email, password, name: user });
-    
+    props.handleSubmit({
+      email: formState.email,
+      password: formState.password,
+      name: formState.user,
+    });
   };
 
   return (
-    <PopoutWithForm isOpen={props.signUpOpen} buttonText="Inscrever-se" onClose={props.onClose} title="Inscrever-se" link="Entre" toggle={props.toggle} handleSubmit={signUpSubmit} valid={formValid}>
+    <PopoutWithForm
+      isOpen={props.signUpOpen}
+      buttonText="Inscrever-se"
+      onClose={props.onClose}
+      title="Inscrever-se"
+      link="Entre"
+      toggle={props.toggle}
+      handleSubmit={signUpSubmit}
+      valid={formValid}
+    >
+      <FormInput
+        type="email"
+        name="Email"
+        form="sign-up"
+        handleChange={(e) => handleInputChange('email', e.target.value)}
+        errorText="E-mail inválido"
+        valid={touched.email ? formState.isEmailValid : true}
+        placeholderText="Insira email"
+      />
 
-      <FormInput type="email" name="Email" form="sign-up" handleChange={handleEmailChange} errorText="E-mail inválido" valid={isEmailValid} placeholderText="Insira email" />
+      <FormInput
+        type="password"
+        name="Password"
+        form="sign-up"
+        handleChange={(e) => handleInputChange('password', e.target.value)}
+        placeholderText="Insira a senha"
+        errorText="Senha requer caracteres adicionais"
+        valid={touched.password ? formState.isPasswordValid : true}
+      />
 
-      <FormInput type="password" name="Password" form="sign-up" handleChange={handlePasswordChange} placeholderText="Insira a senha" errorText="Senha requer caracteres adicionais" valid={isPasswordValid} />
-
-      <FormInput type="text" name="Username" form="sign-up" handleChange={handleUserChange} errorText="Nome de usuário não disponível." valid={isUserValid} placeholderText="Insira seu nome de usuário" />
-
+      <FormInput
+        type="text"
+        name="Username"
+        form="sign-up"
+        handleChange={(e) => handleInputChange('user', e.target.value)}
+        errorText="Nome de usuário não disponível."
+        valid={touched.user ? formState.isUserValid : true}
+        placeholderText="Insira seu nome de usuário"
+      />
     </PopoutWithForm>
   );
 }
+
 export default SignUpPopup;

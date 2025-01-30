@@ -29,7 +29,7 @@ const PopUpWithForm = ({
         <h2 className="form__title">{title}</h2>
         {children}
         <span className="form__submit-error" >
-          Este e-mail não está disponível
+          Reservado para mensagem API
         </span>
         <button
           className={`form__button ${valid ? "" : "form__button_disabled"}`}
