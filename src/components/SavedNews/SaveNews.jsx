@@ -1,89 +1,124 @@
+import React, { useContext, useEffect, useState } from "react";
+import SavedHeader from "../Header/SavedHeader";
+import CurrentUserContext from "../../contexts/CurrentUserContext";
+import Card from "../Card/Card";
 
-import React, { useContext, useEffect, useState } from 'react';
-import NewsCardList from '../NewsCardList/NewsCardList';
-import SavedHeader from '../Header/SavedHeader';
-import CurrentUserContext from '../../contexts/CurrentUserContext';
-import MainBackend from '../../utils/backend';
-
-const SaveNews = (props) => {
+const SaveNews = ({ headerClick, signInDirect, mainApi, loggedIn, hover }) => {
   const currentUser = useContext(CurrentUserContext);
-  const userToken = localStorage.getItem('jwt');
   const [savedCards, setSavedCards] = useState([]);
-  const savedLength = savedCards.length;
+  const [isLoading, setIsLoading] = useState(true);
+  const userToken = localStorage.getItem("jwt");
 
-  const mainApi = new MainBackend({
-    baseUrl: 'http://localhost:3000',
-    headers: {
-      
-      'content-type': 'application/json',
-      Authorization: `Bearer ${userToken}`,
-    },
-  });
-
-  const fetchCards = () => {
-    mainApi.getSavedArticles().then((res) => {
-      
-      setSavedCards(res.articles);
-    }).catch((err) => console.log(err));
-  };
-
+  // Buscar artigos salvos ao carregar o componente
   useEffect(() => {
+    if (!currentUser || !userToken) {
+      console.error("Usuário não autenticado ou token ausente.");
+      setIsLoading(false);
+      return;
+    }
+
+    const fetchCards = async () => {
+      setIsLoading(true);
+      try {
+        const res = await mainApi.getSavedArticles();
+        setSavedCards(res || []);
+      } catch (err) {
+        console.error("Erro ao buscar artigos salvos:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     fetchCards();
-  }, []);
+  }, [currentUser, userToken, mainApi]);
 
+  
+  const handleRemove = (cardId) => {
+    return mainApi
+      .removeArticle(cardId)
+      .then(() => {
+        // Filtra os cartões, removendo o que foi excluído
+        setSavedCards((prevCards) => prevCards.filter((card) => card._id !== cardId));
+      })
+      .catch((err) => console.error("Erro ao remover artigo:", err));
+  };
+  
+
+  // Gerar lista de palavras-chave para exibição
   const byKeywords = () => {
-    const keywords = [];
-    savedCards.forEach((card) => {
-      keywords.push(`${card.keyword} `);
-    });
+    if (!savedCards || savedCards.length === 0) {
+      return "Nenhuma palavra-chave disponível.";
+    }
 
+    const keywords = savedCards.map((card) => card.keyword);
     const sortByWord = (arr) => {
       const frequency = {};
-
-      arr.forEach((value) => { frequency[value] = 0; });
-      const uniques = arr.filter((value) => ++frequency[value] === 1);
-      return uniques.sort((a, b) => frequency[b] - frequency[a]);
+      arr.forEach((value) => {
+        frequency[value] = (frequency[value] || 0) + 1;
+      });
+      return Object.keys(frequency).sort((a, b) => frequency[b] - frequency[a]);
     };
 
     const keywordsList = sortByWord(keywords);
-    const keywordsDisplay = keywordsList.join(', ');
-
-    if (keywords.length <= 3) {
-      return keywordsDisplay;
+    if (keywordsList.length <= 3) {
+      return keywordsList.join(", ");
     }
+
     const keywordCut = keywordsList.slice(0, 2);
-    const display = `${keywordCut.join(', ')}, and ${keywordsList.length - 2} others`;
-    return display;
-
-    
+    return `${keywordCut.join(", ")}, and ${keywordsList.length - 2} others`;
   };
 
-  const handleChange = (cardId) => {
-    
-    const newCards = savedCards.filter((c) => c.id !== cardId);
-    setSavedCards(newCards);
-    fetchCards();
-  };
+  // Renderização condicional para loading ou ausência de autenticação
+  if (isLoading) {
+    return <p>Carregando...</p>;
+  }
+
+  if (!currentUser || !userToken) {
+    return <p>Você precisa estar logado para ver seus artigos salvos.</p>;
+  }
+
+  // Renderização principal
   return (
     <section className="saved">
-      <SavedHeader buttonClick={props.headerClick} />
+      <SavedHeader buttonClick={headerClick} />
       <p className="saved__title">Artigos salvos</p>
       <h1 className="saved__heading">
-        {currentUser.name}
-        , você tem
-        {' '}
-        {savedLength}
-        {' '}
-        artigos salvos
+        {currentUser.name}, você tem {savedCards.length} artigos salvos
       </h1>
       <p className="saved__text">
         Por palavras-chave:
-        <span className="saved__keywords">
-          {byKeywords()}
-        </span>
+        <span className="saved__keywords">{byKeywords()}</span>
       </p>
-      <NewsCardList onChange={handleChange} cards={savedCards} savedArticles="true" loggedIn="true" hover="Remove from saved" />
 
+      {/* Renderizar os cartões diretamente */}
+      <section className="cards">
+        <div className="cards__container">
+          <div className="saved__cards">
+            <ul className="cards__container-list">
+              {savedCards.map((card, index) => (
+                <Card
+                  key={index}
+                  keyword=""
+                  title={card.title}
+                  text={card.text}
+                  date={card.date}
+                  source={card.source}
+                  link={card.url}
+                  image={card.image}
+                  saved={true}
+                  cardId={card._id || null}
+                  loggedIn={loggedIn}
+                  hover={hover}
+                  // onSave={handleSave}
+                  onRemove={handleRemove}
+                  buttonType="trash" //
+                />
+                
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
     </section>
   );
 };

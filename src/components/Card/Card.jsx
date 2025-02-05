@@ -1,123 +1,97 @@
 import React, { useState } from "react";
-import MainBackend from "../../utils/backend";
 
-const Card = (props) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const [cardId, setCardId] = useState("");
-  const userToken = localStorage.getItem("jwt");
 
-  const mainApi = new MainBackend({
-    baseUrl: 'http://localhost:3000',
-    headers: {
-      Authorization: `Bearer ${userToken}`,
-      "content-type": "application/json",
-    },
-  });
-  const saveHover = () => {
-    if (props.loggedIn) {
-      return;
-    }
-    setIsVisible(true);
-  };
-
-  const handleSaveClick = (e) => {
-    if (props.loggedIn) {
-      if (!e.target.classList.contains("card__save-button_saved")) {
-        mainApi
-          .saveArticles({
-            keyword: props.keyword,
-            title: props.title,
-            text: props.text,
-            date: props.date,
-            source: props.source,
-            link: props.image,
-            image: props.image,
-          })
-          .then((res) => {
-            setCardId(res.id);
-            e.target.classList.add("card__save-button_saved");
-          });
-      }
-      if (e.target.classList.contains("card__save-button_saved")) {
-        mainApi
-          .removeArticle(cardId)
-          .then(() => {
-            e.target.classList.remove("card__save-button_saved");
-          })
-          .catch((err) => console.log(err));
-      }
-    }
-  };
-
-  const handleRemoveClick = (e) => {
-    if (props.cardId) {
-      mainApi
-        .removeArticle(props.cardId)
-        .then((res) => {
-          props.onDelete(props.cardId);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
-  };
-
-  const formattedDate = () => {
-    const articleDate = props.date;
-    const months = [
-        "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-        "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
-    ];
-    const noTime = articleDate.slice(0, 10);
-    const date = new Date(noTime);
-
-    const formatDate = `${date.getDate()} de ${months[date.getMonth()]} de ${date.getFullYear()}`;
-    return formatDate;
+const formattedDate = (dateString) => {
+  const months = [
+    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+  ];
+  const date = new Date(dateString);
+  return `${date.getDate()} de ${months[date.getMonth()]} de ${date.getFullYear()}`;
 };
+
+
+const Card = ({
+  keyword,
+  title,
+  text,
+  date,
+  source,
+  link,
+  image,
+  saved,
+  cardId: initialCardId,
+  loggedIn,
+  hover,
+  onSave,
+  onRemove,
+  buttonType, 
+}) => {
+  const [isSaved, setIsSaved] = useState(saved);
+  const [cardId, setCardId] = useState(initialCardId);
+  const [showHint, setShowHint] = useState(false); 
+
+  const handleSaveClick = () => {
+    if (!loggedIn) {
+       return;
+    }
+
+    if (isSaved) {
+      onRemove(cardId)
+        .then(() => {
+          setIsSaved(false);
+          setCardId(null);
+        })
+        .catch((err) => console.error("Erro ao remover artigo:", err));
+    } else {
+      const cardData = {
+        keyword,
+        title,
+        text,
+        date,
+        source,
+        link,
+        image,
+      };
+
+      onSave(cardData)
+        .then((savedCard) => {
+          setIsSaved(true);
+          setCardId(savedCard._id);
+        })
+        .catch((err) => console.error("Erro ao salvar artigo:", err));
+    }
+  };
+
   return (
     <li className="card">
-      <button
-        className={`card__save-button ${props.savedArticles ? "hidden" : ""} `}
-        onMouseEnter={saveHover}
-        onMouseLeave={() => setIsVisible(false)}
-        onClick={handleSaveClick}
+      <img src={image} alt={title} className="card__image" />
+      
+        <button
         type="button"
-      />
-
-      <button
-        className={`card__trash-button ${props.savedArticles ? "" : "hidden"} `}
-        onMouseEnter={() => setIsVisible(true)}
-        onMouseLeave={() => setIsVisible(false)}
-        onClick={handleRemoveClick}
-        type="button"
-      />
-
-      <button
-        className={`card__keyword-button ${props.savedArticles ? "" : "hidden"} `}
-        type="button"
+        className={
+          buttonType === "save"
+            ? `card__save-button ${isSaved ? "card__save-button_saved" : ""}`
+            : "card__trash-button"
+        }
+        onClick={handleSaveClick }
+        onMouseEnter={() => setShowHint(true)} 
+        onMouseLeave={() => setShowHint(false)} 
       >
-        {props.keyword}
+        {/* Adicione um ícone ou texto aqui, se necessário */}
       </button>
+      {!loggedIn && showHint && ( 
+        <div className="card__hover-text">
+          {hover}
+        </div>
+      )}
 
-      <button
-        className={`card__hover-text ${isVisible ? "" : "hidden"} `}
-        type="button"
-      >
-        {props.hover}
-      </button>
-
-      <a
-        href={props.link}
-        target="_blank"
-        rel="noreferrer"
-        className="card__link"
-      >
-        <img className="card__image" src={props.image} alt={props.title} />
-        <p className="card__date">{formattedDate()}</p>
-        <h3 className="card__title">{props.title}</h3>
-        <p className="card__text">{props.text}</p>
-        <p className="card__source card__source-text">{props.source}</p>
-      </a>
+        <div className="card__content">
+        <p className="card__date">{formattedDate(date)}</p>
+        <h3 className="card__title">{title}</h3>
+        <p className="card__text">{text}</p>
+        <p className="card__source">{source}</p>
+      </div>
     </li>
   );
 };

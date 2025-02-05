@@ -1,18 +1,11 @@
+import React from 'react';
+import { Navigate } from 'react-router-dom';
 
-import React, { useEffect } from 'react';
-import { Navigate, Route } from 'react-router-dom';
-
-const ProtectedRoute = ({ component: Component, ...props }) => {
-  useEffect(() => {
-    if (!localStorage.getItem('jwt')) {
-      props.singInDirect();
+const ProtectedRoute = ({ children, loggedIn }) => {
+    if (!loggedIn) {
+        return <Navigate to="/" />;
     }
-  });
-  return ((
-    <Route>
-      {localStorage.getItem('jwt') ? <Component {...props} /> : <Navigate to="/" />}
-    </Route>
-  ));
+    return children; // Renderiza o componente filho (children)
 };
 
 export default ProtectedRoute;

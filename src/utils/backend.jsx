@@ -31,14 +31,15 @@ class MainBackend {
   }
 
   removeArticle(articleId) {
+    console.log("Removendo artigo com ID:", articleId); // Log do ID antes da requisição
     return fetch(`${this._baseUrl}/articles/${articleId}`, {
       headers: this._headers,
       method: 'DELETE',
-    }).then((res) => {
-      
-      (res.ok ? res.json() : Promise.reject(`error!${res.status}${res.statusText}`));
-    });
+    }).then((res) => 
+      res.ok ? res.json() : Promise.reject(`error! ${res.status} ${res.statusText}`)
+    );
   }
+  
 }
 
 export default MainBackend;

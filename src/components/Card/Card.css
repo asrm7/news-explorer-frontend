@@ -143,11 +143,12 @@
   height: 40px;
   border-radius: 10px;
   border: 0;
-  text-align: center;
+  text-align:start ;
   font-family: "Roboto", sans-serif;
   font-size: 12px;
   font-weight: 500;
   line-height: 14.06px;
+  padding: 10px 10px;
 }
 @media screen and (max-width: 760px) {
   .card{

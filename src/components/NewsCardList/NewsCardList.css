@@ -12,12 +12,14 @@
   flex-direction: column;
 }
 .cards__container-list{
+  
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  
-  justify-self: left;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Sempre 3 colunas */
+  gap: 16px; /* Espaçamento entre os cartões */
+  list-style: none;
+  width: 100%;
 }
 
 .cards__container_title {
@@ -68,6 +70,9 @@
     width: 240px;
     height: 56px;
   }
+  .cards__container-list {
+    grid-template-columns: repeat(2, 1fr); /* 2 colunas em telas médias */
+  }
 }
 
 @media screen and (max-width: 900px) {
@@ -106,6 +111,11 @@
 
 }
 
+@media screen and (max-width: 600px) {
+  .cards__container-list {
+    grid-template-columns: repeat(1, 1fr); /* 1 coluna em telas pequenas */
+  }
+}
 
 .hidden{
   display: none;
