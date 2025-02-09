@@ -54,9 +54,11 @@
   width: 352px;
   margin: 2px 24px 24px;
 }
+
 .card__link{
   color: #000;
   text-decoration: none;
+  margin-left: 25px;
 }
 .card__source-link{
   display: inline-block;

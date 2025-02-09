@@ -85,12 +85,12 @@ const Card = ({
           {hover}
         </div>
       )}
-
+        
         <div className="card__content">
         <p className="card__date">{formattedDate(date)}</p>
         <h3 className="card__title">{title}</h3>
         <p className="card__text">{text}</p>
-        <p className="card__source">{source}</p>
+        <p className="card__source" ><a href={link} target="_blank" rel="noreferrer" className="card__link">{source}</a></p>
       </div>
     </li>
   );
