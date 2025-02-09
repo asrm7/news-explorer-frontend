@@ -6,10 +6,11 @@
   }
   .about__image{
       border-radius: 100%;
-      max-width: 464px;
-      max-height: 464px;
+      max-width: 304px;
+      max-height: 304px;
       width: 30vw;
       height: 30vw;
+      margin-top: 50px;
   }
   .about__text{
       margin: 51px 56px;
