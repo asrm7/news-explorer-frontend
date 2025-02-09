@@ -1,5 +1,5 @@
 # News Explorer (FrontEnd)
- Projeto de final de curso da Tripleten Brasil.
+ Projeto de final de curso da Tripleten Brasil. Disponível em "https://news-explorer-frontend.onrender.com".
 ### Objetivo
  Criar um aplicativo funcional de busca de notícias, utilizando tecnologias atualizadas e melhores práticas da área.
 

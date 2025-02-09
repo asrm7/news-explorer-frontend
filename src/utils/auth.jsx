@@ -1,8 +1,8 @@
 
 
 
-export const BASE_URL = 'http://localhost:3000';
-
+// export const BASE_URL = 'http://localhost:3000';
+export const BASE_URL = "https://news-explorer-backend-m2lm.onrender.com";
 export const register = (email, password, name) => fetch(`${BASE_URL}/signup`, {
   method: 'POST',
   headers: {

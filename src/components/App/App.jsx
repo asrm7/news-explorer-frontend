@@ -31,7 +31,8 @@ const App = () => {
   const [resultError, setResultError] = useState(false);
   const navigate = useNavigate();
   const mainApi = new MainBackend({
-    baseUrl: "http://localhost:3000",
+    // baseUrl: "http://localhost:3000",
+    baseUrl: "https://news-explorer-backend-m2lm.onrender.com",
     headers: {
       Authorization: `Bearer ${localStorage.getItem("jwt")}`,
       "content-type": "application/json",
