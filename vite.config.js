@@ -1,7 +1,9 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
 
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
-})
+  preview: {
+    host: true, // Permite conexões externas
+    port: process.env.PORT || 4173, // Usa a porta definida pelo Render
+    allowedHosts: ["news-explorer-frontend.onrender.com"], // Permite esse domínio
+  }
+});
